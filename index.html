@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js';document.head.appendChild(s);"></script>
 <style>
 :root {
   --bg: #0a0f1e;
@@ -1056,8 +1056,10 @@ function dismissBanner() {
   </div>
 </header>
 <div class="container">
-<div class="step-bar" id="step-bar"><div class="step-item active" id="step-1" onclick="scrollToSection('pasient')"><div class="step-circle">01</div><div class="step-label">Pasient</div></div><div class="step-line" id="line-1"></div><div class="step-item " id="step-2" onclick="scrollToSection('egym')"><div class="step-circle">02</div><div class="step-label">EGYM</div></div><div class="step-line" id="line-2"></div><div class="step-item " id="step-3" onclick="scrollToSection('bruce')"><div class="step-circle">03</div><div class="step-label">Kondisjon</div></div><div class="step-line" id="line-3"></div><div class="step-item " id="step-4" onclick="scrollToSection('sammendrag')"><div class="step-circle">04</div><div class="step-label">Score</div></div><div class="step-line" id="line-4"></div><div class="step-item " id="step-5" onclick="scrollToSection('eksport')"><div class="step-circle">05</div><div class="step-label">Eksport</div></div></div>
+<div class="step-bar" id="step-bar"><div class="step-item active" id="step-1" onclick="scrollToSection('pasient')"><div class="step-circle">01</div><div class="step-label">Pasient</div></div><div class="step-line" id="line-1"></div><div class="step-item " id="step-2" onclick="scrollToSection('egym')"><div class="step-circle">02</div><div class="step-label">EGYM</div></div><div class="step-line" id="line-2"></div><div class="step-item " id="step-3" onclick="scrollToSection('bruce')"><div class="step-circle">03</div><div class="step-label">Kondisjon</div></div><div class="step-line" id="line-3"></div><div class="step-item " id="step-4" onclick="scrollToSection('summary')"><div class="step-circle">04</div><div class="step-label">Notat</div></div><div class="step-line" id="line-4"></div><div class="step-item " id="step-5" onclick="scrollToSection('export')"><div class="step-circle">05</div><div class="step-label">Eksport</div></div></div>
 <!-- ─── PASIENTINFO ─── -->
+  <div class="validate-banner" id="validate-banner">Fyll inn alle obligatoriske felter (markert med *) før du eksporterer.</div>
+
   <div class="section-marker" id="pasient">
     <div class="section-marker-line"></div>
     <span class="section-marker-tag tag-patient">01 — Pasientinformasjon</span>
@@ -1069,7 +1071,19 @@ function dismissBanner() {
     <div class="form-grid-3">
       <div class="form-group field-required" id="req-fodselsdato">
         <label>Fødselsdato *</label>
-        <input type="date" id="p_fodselsdato">
+        <input type="date" id="p_fodselsdato" style="display:none">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="number" id="p_fdag" min="1" max="31" placeholder="DD" style="width:60px;text-align:center;" oninput="syncFodselsdato()">
+          <select id="p_fmnd" style="flex:1;min-width:80px;" onchange="syncFodselsdato()">
+            <option value="">Mnd</option>
+            <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option>
+            <option value="04">Apr</option><option value="05">Mai</option><option value="06">Jun</option>
+            <option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option>
+            <option value="10">Okt</option><option value="11">Nov</option><option value="12">Des</option>
+          </select>
+          <input type="number" id="p_faar" min="1900" max="2026" placeholder="ÅÅÅÅ" style="width:80px;text-align:center;" oninput="syncFodselsdato()">
+        </div>
+        <div id="alder-display" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--sterk-light);margin-top:5px;"></div>
       </div>
       <div class="form-group">
         <label>Kjønn</label>
@@ -1204,53 +1218,6 @@ function dismissBanner() {
           <div class="form-group"><label>Hvilepuls</label><div class="input-with-badge"><div class="input-with-unit"><input type="number" id="c_puls" min="30" max="150" placeholder="—" oninput="updateCardioRefs()"><span class="input-unit">bpm</span></div><span class="badge-slot" id="badge_puls"></span></div></div>
           <div class="form-group"><label>Systolisk BT</label><div class="input-with-badge"><div class="input-with-unit"><input type="number" id="c_sys" min="60" max="250" placeholder="—" oninput="updateCardioRefs()"><span class="input-unit">mmHg</span></div><span class="badge-slot" id="badge_sys"></span></div></div>
           <div class="form-group"><label>Diastolisk BT</label><div class="input-with-badge"><div class="input-with-unit"><input type="number" id="c_dia" min="40" max="180" placeholder="—" oninput="updateCardioRefs()"><span class="input-unit">mmHg</span></div><span class="badge-slot" id="badge_dia"></span></div></div>
-        </div>
-
-        <!-- VO2maks -->
-        <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
-          <div style="font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;">VO₂maks — kondisjontest</div>
-          <div class="form-grid">
-            <div class="form-group full">
-              <label>Protokoll</label>
-              <select id="vo2_protokoll" onchange="calcVO2()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:14px;width:100%;">
-                <option value="">— Velg protokoll —</option>
-                <option value="bruce">Bruce (tredemølle)</option>
-                <option value="modbruce">Modifisert Bruce (tredemølle)</option>
-                <option value="astrand">Åstrand (sykkel)</option>
-              </select>
-            </div>
-
-            <!-- Bruce inputs -->
-            <div class="form-group" id="vo2_bruce_tid_wrap" style="display:none;">
-              <label>Tid på tredemølle</label>
-              <div style="display:flex;gap:6px;align-items:center;">
-                <input type="number" id="vo2_bruce_min" min="0" max="30" placeholder="min" oninput="calcVO2()" style="width:70px;text-align:center;">
-                <span style="color:var(--muted);font-size:12px;">min</span>
-                <input type="number" id="vo2_bruce_sek" min="0" max="59" placeholder="sek" oninput="calcVO2()" style="width:70px;text-align:center;">
-                <span style="color:var(--muted);font-size:12px;">sek</span>
-              </div>
-            </div>
-
-            <!-- Åstrand inputs -->
-            <div class="form-group" id="vo2_astrand_puls_wrap" style="display:none;">
-              <label>Steadystate-puls</label>
-              <div class="input-with-unit"><input type="number" id="vo2_astrand_puls" min="100" max="200" placeholder="—" oninput="calcVO2()"><span class="input-unit">bpm</span></div>
-            </div>
-            <div class="form-group" id="vo2_astrand_watt_wrap" style="display:none;">
-              <label>Belastning</label>
-              <div class="input-with-unit"><input type="number" id="vo2_astrand_watt" min="50" max="400" step="25" placeholder="—" oninput="calcVO2()"><span class="input-unit">W</span></div>
-            </div>
-
-            <!-- Result -->
-            <div class="form-group auto-field" id="vo2_result_wrap" style="display:none;">
-              <label>VO₂maks (beregnet)</label>
-              <div class="input-with-badge">
-                <div class="input-with-unit"><input type="number" id="c_vo2maks" readonly placeholder="—"><span class="input-unit">ml/kg/min</span></div>
-                <span class="badge-slot" id="badge_vo2"></span>
-              </div>
-            </div>
-          </div>
-          <div id="vo2_hint" style="font-size:11px;color:var(--muted);margin-top:6px;display:none;"></div>
         </div>
       </div>
     </div>
@@ -1507,54 +1474,55 @@ function dismissBanner() {
 <!-- ─── SAMMENDRAG ─── -->
   <div class="section-marker" id="summary">
     <div class="section-marker-line"></div>
-    <span class="section-marker-tag tag-summary">04 — Samlet helsescore</span>
+    <span class="section-marker-tag tag-summary">04 — Kommentar & historikk</span>
     <div class="section-marker-line"></div>
   </div>
 
   <div class="card summary-card">
-    <div class="card-title ct-summary">// Oversikt alle målinger</div>
-
-    <div class="summary-grid">
-      <div class="sum-tile highlight-tile">
-        <div class="sum-tile-label">EGYM BioAge</div>
-        <div class="sum-tile-val" id="sum_egym_bioage">—</div>
-        <div class="sum-tile-unit">år</div>
+    <!-- Oversikt skjult — helsefeedback gis av lege via legevisning -->
+    <div style="display:none;">
+      <div class="card-title ct-summary">// Oversikt alle målinger</div>
+      <div class="summary-grid">
+        <div class="sum-tile highlight-tile">
+          <div class="sum-tile-label">EGYM BioAge</div>
+          <div class="sum-tile-val" id="sum_egym_bioage">—</div>
+          <div class="sum-tile-unit">år</div>
+        </div>
+        <div class="sum-tile highlight-tile">
+          <div class="sum-tile-label">VO₂maks</div>
+          <div class="sum-tile-val" id="sum_vo2">—</div>
+          <div class="sum-tile-unit">ml/kg/min</div>
+        </div>
+        <div class="sum-tile">
+          <div class="sum-tile-label">Kronologisk alder</div>
+          <div class="sum-tile-val" id="sum_kronalder" style="color:var(--accent)">—</div>
+          <div class="sum-tile-unit">år</div>
+        </div>
+        <div class="sum-tile">
+          <div class="sum-tile-label">Blodtrykk</div>
+          <div class="sum-tile-val" id="sum_bt" style="color:var(--text);font-size:22px">—</div>
+          <div class="sum-tile-unit">mmHg</div>
+        </div>
+        <div class="sum-tile">
+          <div class="sum-tile-label">BMI</div>
+          <div class="sum-tile-val" id="sum_bmi" style="color:var(--text)">—</div>
+          <div class="sum-tile-unit">kg/m²</div>
+        </div>
+        <div class="sum-tile">
+          <div class="sum-tile-label">ACSM kondisjon</div>
+          <div class="sum-tile-val" id="sum_acsm" style="color:var(--accent3);font-size:16px;padding-top:6px">—</div>
+          <div class="sum-tile-unit"></div>
+        </div>
+        <div class="sum-tile">
+          <div class="sum-tile-label">Grepsstyrke</div>
+          <div class="sum-tile-val" id="sum_grip" style="color:var(--text)">—</div>
+          <div class="sum-tile-unit">kg</div>
+        </div>
       </div>
-      <div class="sum-tile highlight-tile">
-        <div class="sum-tile-label">VO₂maks</div>
-        <div class="sum-tile-val" id="sum_vo2">—</div>
-        <div class="sum-tile-unit">ml/kg/min</div>
+      <div class="delta-row" id="delta-row" style="display:none">
+        <span class="delta-label">BioAge vs kronologisk alder:</span>
+        <span class="delta-val" id="delta-val">—</span>
       </div>
-      <div class="sum-tile">
-        <div class="sum-tile-label">Kronologisk alder</div>
-        <div class="sum-tile-val" id="sum_kronalder" style="color:var(--accent)">—</div>
-        <div class="sum-tile-unit">år</div>
-      </div>
-      <div class="sum-tile">
-        <div class="sum-tile-label">Blodtrykk</div>
-        <div class="sum-tile-val" id="sum_bt" style="color:var(--text);font-size:22px">—</div>
-        <div class="sum-tile-unit">mmHg</div>
-      </div>
-      <div class="sum-tile">
-        <div class="sum-tile-label">BMI</div>
-        <div class="sum-tile-val" id="sum_bmi" style="color:var(--text)">—</div>
-        <div class="sum-tile-unit">kg/m²</div>
-      </div>
-      <div class="sum-tile">
-        <div class="sum-tile-label">ACSM kondisjon</div>
-        <div class="sum-tile-val" id="sum_acsm" style="color:var(--accent3);font-size:16px;padding-top:6px">—</div>
-        <div class="sum-tile-unit"></div>
-      </div>
-      <div class="sum-tile">
-        <div class="sum-tile-label">Grepsstyrke</div>
-        <div class="sum-tile-val" id="sum_grip" style="color:var(--text)">—</div>
-        <div class="sum-tile-unit">kg</div>
-      </div>
-    </div>
-
-    <div class="delta-row" id="delta-row" style="display:none">
-      <span class="delta-label">BioAge vs kronologisk alder:</span>
-      <span class="delta-val" id="delta-val">—</span>
     </div>
 
     <div class="form-group" style="margin-top:12px">
@@ -1588,24 +1556,18 @@ function dismissBanner() {
 <!-- ─── EKSPORT ─── -->
   <div class="section-marker" id="export">
     <div class="section-marker-line"></div>
-    <span class="section-marker-tag tag-export">05 — Send til Pasientsky</span>
+    <span class="section-marker-tag tag-export">05 — Eksporter</span>
     <div class="section-marker-line"></div>
   </div>
 
   <div class="card">
     <div class="card-title" style="color:var(--accent3)">// Eksporter</div>
-    <div class="export-actions">
-      <button class="export-btn primary" onclick="generatePDF()" style="background:var(--accent2);border-color:var(--accent2);">Last ned PDF</button>
-      <button class="export-btn" onclick="copyJournal()">Kopier journaltekst</button>
-      <button class="export-btn email-btn" onclick="openEmailModal()">Send på e-post →</button>
-      <button class="export-btn no-print" onclick="window.print()" style="border-color:rgba(0,229,255,0.3);color:var(--accent);">Skriv ut</button>
+    <div class="export-actions" style="flex-direction:column;gap:12px;">
+      <button class="export-btn primary" onclick="generatePDF()" style="background:var(--accent3);border-color:var(--accent3);color:#000;padding:16px 20px;font-size:14px;width:100%;">Last ned fysisk helseundersøkelse</button>
+      <button class="export-btn" onclick="exportSterkApp()" style="border-color:var(--sterk);color:var(--sterk-light);width:100%;opacity:0.7;">Eksporter til STERK APP <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;background:rgba(13,79,71,0.25);padding:2px 6px;border-radius:4px;margin-left:8px;">KOMMER</span></button>
     </div>
     <div class="export-preview" id="export-preview">
       <pre id="export-content"></pre>
-      <div class="export-actions">
-        <button class="export-btn" onclick="downloadTxt()">Last ned .txt</button>
-        <button class="export-btn" onclick="copyJournal()">Kopier igjen</button>
-      </div>
     </div>
     <div class="status-toast" id="status-toast"></div>
   </div>
@@ -1635,6 +1597,24 @@ function calcAge(dateStr) {
   const m = now.getMonth() - d.getMonth();
   if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
   return age > 0 && age < 120 ? age : null;
+}
+
+function syncFodselsdato() {
+  const dag = v('p_fdag');
+  const mnd = v('p_fmnd');
+  const aar = v('p_faar');
+  if (dag && mnd && aar && aar.length === 4) {
+    const dateStr = aar + '-' + mnd + '-' + dag.padStart(2, '0');
+    setv('p_fodselsdato', dateStr);
+    const age = calcAge(dateStr);
+    const display = g('alder-display');
+    if (display) display.textContent = age !== null ? age + ' år' : '';
+    g('req-fodselsdato').classList.remove('invalid');
+    const vb = g('validate-banner'); if (vb) vb.classList.remove('show');
+    updateAllRefs();
+    updateSummary();
+    syncDemographics();
+  }
 }
 
 function badge(cls, text) {
@@ -1736,74 +1716,9 @@ function refVO2(vo2, gender, age) {
 }
 
 function calcVO2() {
-  const protokoll = v('vo2_protokoll');
-  const gender = v('p_kjonn') || 'male';
-  const age = calcAge(v('p_fodselsdato'));
-  const vekt = parseFloat(v('m_vekt'));
-
-  // Show/hide input fields
-  g('vo2_bruce_tid_wrap').style.display  = (protokoll === 'bruce' || protokoll === 'modbruce') ? '' : 'none';
-  g('vo2_astrand_puls_wrap').style.display = protokoll === 'astrand' ? '' : 'none';
-  g('vo2_astrand_watt_wrap').style.display = protokoll === 'astrand' ? '' : 'none';
-
-  let vo2 = null;
-  let hint = '';
-
-  if (protokoll === 'bruce' || protokoll === 'modbruce') {
-    const min = parseFloat(document.getElementById('vo2_bruce_min').value) || 0;
-    const sek = parseFloat(document.getElementById('vo2_bruce_sek').value) || 0;
-    const T = min + sek / 60;
-    if (T > 0) {
-      if (protokoll === 'bruce') {
-        // Pollock 1982 — treadmill time in minutes
-        if (gender === 'male')
-          vo2 = 14.76 - 1.379*T + 0.451*T*T - 0.012*T*T*T;
-        else
-          vo2 = 4.38*T - 3.9;
-        hint = 'Bruce: Pollock 1982 (menn) / Foster 1984 (kvinner). Uten håndrekkverk.';
-      } else {
-        // Modified Bruce — starts at stage 0 (1.7 mph, 0%)
-        if (gender === 'male')
-          vo2 = 2.282*T + 8.545;
-        else
-          vo2 = 2.282*T + 5.0;
-        hint = 'Modifisert Bruce: starter ved 2,7 km/t, 0 % stigning. For eldre/dekondisjonerte.';
-      }
-    }
-  } else if (protokoll === 'astrand') {
-    const puls = parseFloat(document.getElementById('vo2_astrand_puls').value);
-    const watt = parseFloat(document.getElementById('vo2_astrand_watt').value);
-    if (puls && watt && vekt) {
-      // Åstrand-Ryhming nomogram approximation: VO2 (L/min) = (watt * 12) / (puls - 50) * 0.1
-      // Using standard formula: VO2L = (watt + 300) / (puls - 50) * 0.054 (simplified Åstrand)
-      const vo2L = (watt * 0.163 + 0.053) / ((puls - 0.387 * puls + 0.387 * 72) / 72);
-      // Simpler validated: VO2 mL/kg/min
-      // Åstrand 1954: VO2max (L/min) ≈ (watt × 12) / HR_steady
-      const vo2Lmin = (watt * 12) / puls;
-      vo2 = (vo2Lmin * 1000) / vekt;
-      hint = 'Åstrand-Ryhming (1954). Krever steadystate-puls (siste 2 min av 6 min test ved jevn belastning).';
-    } else if (puls && watt && !vekt) {
-      hint = 'Fyll inn vekt under Metabolsk for å beregne VO₂maks (ml/kg/min).';
-    }
-  }
-
-  if (vo2 && vo2 > 0) {
-    vo2 = Math.round(vo2 * 10) / 10;
-    setv('c_vo2maks', vo2);
-    const ref = refVO2(vo2, gender, age);
-    setBadge('badge_vo2', ref ? ref[0] : null, ref ? ref[1] : '');
-    g('vo2_result_wrap').style.display = '';
-  } else {
-    setv('c_vo2maks', '');
-    setBadge('badge_vo2', null, '');
-    g('vo2_result_wrap').style.display = protokoll ? '' : 'none';
-  }
-
-  const hintEl = g('vo2_hint');
-  if (hint) { hintEl.textContent = hint; hintEl.style.display = ''; }
-  else hintEl.style.display = 'none';
-
-  updateSummary();
+  // VO2 calculation from EGYM card has been removed — handled in section 03 (kondisjonstest)
+  // This function is kept as a no-op to avoid errors from any remaining references
+  return;
 }
 
 // Grip strength reference values based on age and gender (Roberts 2011, Bohannon 2019)
@@ -2284,9 +2199,181 @@ function calculateAstrand() {
   showResult(vo2, gender, watt + ' W', Math.round(steadyHR) + ' bpm (ss)', 'Åstrand');
 }
 
+// ─── Canvas roundRect polyfill ──────────────────────
+if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (typeof r === 'number') r = [r, r, r, r];
+    const [tl, tr, br, bl] = r;
+    this.moveTo(x + tl, y);
+    this.lineTo(x + w - tr, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + tr);
+    this.lineTo(x + w, y + h - br);
+    this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+    this.lineTo(x + bl, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - bl);
+    this.lineTo(x, y + tl);
+    this.quadraticCurveTo(x, y, x + tl, y);
+    this.closePath();
+    return this;
+  };
+}
+
+// ─── PNG tEXt chunk insertion ────────────────────────
+function insertPngTextChunk(pngBytes, keyword, value) {
+  // Build a tEXt chunk: keyword + null separator + value
+  const keyBytes = new TextEncoder().encode(keyword);
+  const valBytes = new TextEncoder().encode(value);
+  const chunkDataLen = keyBytes.length + 1 + valBytes.length; // +1 for null separator
+  const chunkData = new Uint8Array(chunkDataLen);
+  chunkData.set(keyBytes, 0);
+  chunkData[keyBytes.length] = 0; // null separator
+  chunkData.set(valBytes, keyBytes.length + 1);
+
+  // Build full chunk: length(4) + type(4) + data + crc(4)
+  const typeBytes = new TextEncoder().encode('tEXt');
+  const chunkTotal = new Uint8Array(12 + chunkDataLen);
+  // Length (big-endian)
+  chunkTotal[0] = (chunkDataLen >> 24) & 0xff;
+  chunkTotal[1] = (chunkDataLen >> 16) & 0xff;
+  chunkTotal[2] = (chunkDataLen >> 8) & 0xff;
+  chunkTotal[3] = chunkDataLen & 0xff;
+  // Type
+  chunkTotal.set(typeBytes, 4);
+  // Data
+  chunkTotal.set(chunkData, 8);
+  // CRC32 over type+data
+  const crcInput = new Uint8Array(4 + chunkDataLen);
+  crcInput.set(typeBytes, 0);
+  crcInput.set(chunkData, 4);
+  const crc = crc32(crcInput);
+  chunkTotal[8 + chunkDataLen] = (crc >> 24) & 0xff;
+  chunkTotal[9 + chunkDataLen] = (crc >> 16) & 0xff;
+  chunkTotal[10 + chunkDataLen] = (crc >> 8) & 0xff;
+  chunkTotal[11 + chunkDataLen] = crc & 0xff;
+
+  // Insert before IDAT (first IDAT chunk, after IHDR)
+  // Find first IDAT
+  let insertPos = 8; // after PNG signature
+  while (insertPos < pngBytes.length) {
+    const len = (pngBytes[insertPos]<<24|pngBytes[insertPos+1]<<16|pngBytes[insertPos+2]<<8|pngBytes[insertPos+3])>>>0;
+    const type = String.fromCharCode(pngBytes[insertPos+4],pngBytes[insertPos+5],pngBytes[insertPos+6],pngBytes[insertPos+7]);
+    if (type === 'IDAT') break;
+    insertPos += 12 + len;
+  }
+
+  // Combine: before + tEXt chunk + rest
+  const result = new Uint8Array(pngBytes.length + chunkTotal.length);
+  result.set(pngBytes.slice(0, insertPos), 0);
+  result.set(chunkTotal, insertPos);
+  result.set(pngBytes.slice(insertPos), insertPos + chunkTotal.length);
+
+  return new Blob([result], { type: 'image/png' });
+}
+
+// CRC32 for PNG chunks
+function crc32(bytes) {
+  let crc = 0xffffffff;
+  for (let i = 0; i < bytes.length; i++) {
+    crc ^= bytes[i];
+    for (let j = 0; j < 8; j++) {
+      crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+// ─── Build STERK data object for metadata embedding ─────
+function buildSterkDataObject() {
+  const age = calcAge(v('p_fodselsdato'));
+  const egymBio = g('egym_total_val') ? g('egym_total_val').textContent : '—';
+  const data = {
+    // Patient info
+    fodselsdato: v('p_fodselsdato') || '',
+    testdato: v('p_testdato') || '',
+    kjonn: v('p_kjonn') || '',
+    alder: age,
+    instruktor: v('p_instruktor') || '',
+    journal: v('p_journal') || '',
+
+    // EGYM BioAge total
+    egym_bioage_total: egymBio !== '—' ? egymBio : '',
+
+    // Styrke
+    s_benkpress: v('s_benkpress') || '',
+    s_roing: v('s_roing') || '',
+    s_skulder: '',
+    s_lat: v('s_lat') || '',
+    s_beinpress: v('s_beinpress') || '',
+    s_beinekst: v('s_beinekst') || '',
+    s_beinkurl: v('s_beinkurl') || '',
+    s_mage: v('s_mage') || '',
+    bio_styrke: v('bio_styrke') || '',
+
+    // Fleksibilitet
+    f_nakke_v: v('f_nakke_v') || '',
+    f_nakke_h: v('f_nakke_h') || '',
+    f_hofte_v: v('f_hofte_v') || '',
+    f_hofte_h: v('f_hofte_h') || '',
+    f_ham_v: v('f_ham_v') || '',
+    f_ham_h: v('f_ham_h') || '',
+    f_lat_v: v('f_lat_v') || '',
+    f_lat_h: v('f_lat_h') || '',
+    f_bryst: v('f_bryst') || '',
+    f_squat: v('f_squat') || '',
+    bio_fleks: v('bio_fleks') || '',
+
+    // Metabolsk
+    m_vekt: v('m_vekt') || '',
+    m_hoyde: v('m_hoyde') || '',
+    m_bmi: v('m_bmi') || '',
+    m_midje: '',
+    m_hofte: '',
+    m_whr: '',
+    m_fettpct: v('m_fettpct') || '',
+    m_muskel: v('m_muskel') || '',
+    m_ffmi: '',
+    bio_meta: v('bio_meta') || '',
+
+    // Kondisjon / hjerte-kar
+    c_puls: v('c_puls') || '',
+    c_sys: v('c_sys') || '',
+    c_dia: v('c_dia') || '',
+    c_vo2egym: v('c_vo2maks') || '',
+    bio_cardio: '',
+
+    // Bruce / kondisjonstest
+    bruce_vo2: bruceVo2 !== null ? String(bruceVo2) : '',
+    bruce_cat: bruceCategory || '',
+    bruce_prot: g('res-protocol') ? g('res-protocol').textContent : '',
+    bruce_tid: g('res-time') ? g('res-time').textContent : '',
+    bruce_hf: g('res-hfmax') ? g('res-hfmax').textContent : '',
+
+    // Grepsstyrke
+    g_h1: v('g_h1') || '', g_h2: v('g_h2') || '', g_h3: v('g_h3') || '',
+    g_v1: v('g_v1') || '', g_v2: v('g_v2') || '', g_v3: v('g_v3') || '',
+    g_best_h: v('g_best_h') || '',
+    g_best_v: v('g_best_v') || '',
+    g_max: v('g_max') || '',
+
+    // Kommentar
+    kommentar: v('kommentar') || '',
+
+    // Meta
+    _source: 'sterk_helseundersokelse.html',
+    _version: 'STERK_EGYM_DATA_V1',
+    _generated: new Date().toISOString()
+  };
+  return data;
+}
+
 // ─── PDF GENERATION (jsPDF) ─────────────────────────
 function generatePDF() {
   if (!validateRequired()) return;
+  if (!window.jspdf) {
+    setToast('PDF-biblioteket (jsPDF) er ikke lastet — sjekk internettforbindelsen og prøv igjen.');
+    return;
+  }
+  try {
   saveLastTest();
   loadLastTest();
   recordEntry();
@@ -2294,6 +2381,17 @@ function generatePDF() {
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  // ── Embed STERK metadata for legevisning compatibility ──
+  const sterkData = buildSterkDataObject();
+  const sterkB64 = btoa(unescape(encodeURIComponent(JSON.stringify(sterkData))));
+  doc.setProperties({
+    title: 'Standard fysisk helseundersøkelse — Sterk HT',
+    subject: 'STERK_EGYM_DATA_V1:' + sterkB64,
+    author: 'Sterk Helse & Trening',
+    creator: 'sterk_helseundersokelse.html'
+  });
+
   const W = 210, H = 297;
   const ML = 18, MR = 18; // margins
   const CW = W - ML - MR; // content width
@@ -2508,9 +2606,9 @@ function generatePDF() {
     doc.text(cat, catX + 4, y + 7.2);
 
     y += 16;
-    y = fieldRow('Protokoll', v('res-protocol'), y);
-    y = fieldRow(currentMode === 'cycle' ? 'Belastning' : 'Testtid', v('res-time'), y);
-    const hfVal = v('res-hfmax');
+    y = fieldRow('Protokoll', g('res-protocol') ? g('res-protocol').textContent : '—', y);
+    y = fieldRow(currentMode === 'cycle' ? 'Belastning' : 'Testtid', g('res-time') ? g('res-time').textContent : '—', y);
+    const hfVal = g('res-hfmax') ? g('res-hfmax').textContent : '—';
     if (hfVal && hfVal !== '—') y = fieldRow('HF', hfVal, y);
     y = fieldRow('ACSM-kategori', bruceCategory, y);
   } else {
@@ -2596,7 +2694,377 @@ function generatePDF() {
     setToast('PDF åpnet i ny fane — trykk Del → Lagre til Filer for å laste ned');
   } else {
     doc.save(filename);
-    setToast('PDF generert og lastet ned — klar for opplasting i Pasientsky');
+    setToast('PDF generert og lastet ned');
+  }
+  _hasExported = true;
+  clearDraft();
+  } catch(err) {
+    console.error('PDF-generering feilet:', err);
+    setToast('Feil ved PDF-generering: ' + err.message);
+  }
+}
+
+// ─── PNG GENERATION (Canvas) ─────────────────────────
+function generatePNG() {
+  if (!validateRequired()) return;
+  try {
+  saveLastTest();
+  loadLastTest();
+  recordEntry();
+  updateSummary();
+
+  // Create a high-res canvas (A4 proportions, 2x for retina)
+  const SCALE = 2;
+  const CW_PX = 794 * SCALE;  // A4 width at 96dpi × 2
+  const CH_PX = 1123 * SCALE; // A4 height at 96dpi × 2
+  const canvas = document.createElement('canvas');
+  canvas.width = CW_PX;
+  canvas.height = CH_PX;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(SCALE, SCALE);
+  const PW = 794, PH = 1123;
+  const ML = 48, MR = 48;
+  const CW = PW - ML - MR;
+
+  // Colors
+  const COL = {
+    bg: '#ffffff',
+    sterk: '#0d4f47',
+    sterkLight: '#1a9e8e',
+    accent: '#00e5ff',
+    purple: '#c77dff',
+    green: '#69ff47',
+    yellow: '#ffbe0b',
+    red: '#ff4d6d',
+    grayBg: '#f5f7fa',
+    grayLine: '#dce1e8',
+    grayText: '#646e82',
+    darkText: '#1e2332',
+    white: '#ffffff',
+  };
+
+  // Fill white background
+  ctx.fillStyle = COL.bg;
+  ctx.fillRect(0, 0, PW, PH);
+
+  let y = 0;
+
+  // ── HEADER ──
+  ctx.fillStyle = COL.sterk;
+  ctx.fillRect(0, 0, PW, 100);
+  ctx.fillStyle = '#0a3c36';
+  ctx.fillRect(0, 95, PW, 5);
+
+  ctx.font = 'bold 48px Helvetica, Arial, sans-serif';
+  ctx.fillStyle = COL.white;
+  ctx.textBaseline = 'middle';
+  ctx.fillText('STERK', ML, 38);
+  ctx.font = '18px Helvetica, Arial, sans-serif';
+  ctx.fillStyle = '#b4dcd6';
+  ctx.fillText('HELSE & TRENING', ML, 65);
+
+  ctx.font = 'bold 28px Helvetica, Arial, sans-serif';
+  ctx.fillStyle = COL.white;
+  ctx.textAlign = 'right';
+  ctx.fillText('Standard fysisk helseundersøkelse', PW - MR, 40);
+  ctx.font = '16px Helvetica, Arial, sans-serif';
+  ctx.fillStyle = '#b4dcd6';
+  ctx.fillText('EGYM · Kondisjonstest · Grepsstyrke', PW - MR, 65);
+  ctx.textAlign = 'left';
+
+  y = 120;
+
+  // ── SECTION LABEL ──
+  function sectionLabel(label, yPos) {
+    ctx.fillStyle = COL.grayBg;
+    ctx.fillRect(ML, yPos - 4, CW, 22);
+    ctx.strokeStyle = COL.grayLine;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(ML, yPos + 18);
+    ctx.lineTo(ML + CW, yPos + 18);
+    ctx.stroke();
+    ctx.font = 'bold 16px Helvetica, Arial, sans-serif';
+    ctx.fillStyle = COL.sterk;
+    ctx.fillText(label, ML + 8, yPos + 12);
+    return yPos + 30;
+  }
+
+  function fieldRow(label, value, yPos, badge) {
+    ctx.font = '15px Helvetica, Arial, sans-serif';
+    ctx.fillStyle = COL.grayText;
+    ctx.fillText(label, ML + 6, yPos);
+    ctx.font = 'bold 15px Helvetica, Arial, sans-serif';
+    ctx.fillStyle = COL.darkText;
+    ctx.fillText(String(value || '—'), ML + 180, yPos);
+    if (badge) {
+      const bColor = badge[0] === 'ref-green' ? COL.green : badge[0] === 'ref-yellow' ? COL.yellow : COL.red;
+      const bx = ML + 180 + ctx.measureText(String(value || '—')).width + 10;
+      ctx.fillStyle = bColor;
+      ctx.beginPath();
+      ctx.arc(bx + 4, yPos - 3, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = '12px Helvetica, Arial, sans-serif';
+      ctx.fillStyle = COL.grayText;
+      ctx.fillText(badge[1], bx + 12, yPos);
+    }
+    return yPos + 20;
+  }
+
+  // ── PASIENTINFO ──
+  const testdato = v('p_testdato') || '—';
+  const fodselsdato = v('p_fodselsdato') || '—';
+  const kjonn = v('p_kjonn') ? ({ male: 'Mann', female: 'Kvinne', other: 'Annet' }[v('p_kjonn')] || '') : '—';
+  const age = calcAge(v('p_fodselsdato'));
+  const journal = v('p_journal');
+  const instruktor = v('p_instruktor');
+
+  y = sectionLabel('PASIENTINFORMASJON', y);
+  y = fieldRow('Testdato', testdato, y);
+  y = fieldRow('Fødselsdato', fodselsdato + (age ? ' (' + age + ' år)' : ''), y);
+  y = fieldRow('Kjønn', kjonn, y);
+  if (journal) y = fieldRow('Journal-ID', journal, y);
+  if (instruktor) y = fieldRow('Instruktør', instruktor, y);
+  y += 10;
+
+  // ── METABOLSK ──
+  const hasMeta = ['m_vekt', 'm_hoyde', 'm_bmi', 'm_fettpct', 'm_muskel'].some(id => v(id));
+  if (hasMeta) {
+    y = sectionLabel('METABOLSK HELSE', y);
+    if (v('m_vekt')) y = fieldRow('Vekt', v('m_vekt') + ' kg', y);
+    if (v('m_hoyde')) y = fieldRow('Høyde', v('m_hoyde') + ' cm', y);
+    if (v('m_bmi')) y = fieldRow('BMI', v('m_bmi') + ' kg/m²', y, refBMI(n('m_bmi')));
+    if (v('m_fettpct')) y = fieldRow('Fettprosent', v('m_fettpct') + ' %', y, refFett(n('m_fettpct'), v('p_kjonn'), age));
+    if (v('m_muskel')) y = fieldRow('Muskelmasse', v('m_muskel') + ' kg', y);
+    if (v('bio_meta')) y = fieldRow('BioAge metabolsk', v('bio_meta') + ' år', y);
+    y += 10;
+  }
+
+  // ── KONDISJON / HJERTE-KAR ──
+  const hasCardio = ['c_puls', 'c_sys', 'c_dia', 'c_vo2maks'].some(id => v(id));
+  if (hasCardio) {
+    y = sectionLabel('KONDISJON / HJERTE-KAR', y);
+    if (v('c_puls')) y = fieldRow('Hvilepuls', v('c_puls') + ' bpm', y, refPuls(n('c_puls')));
+    if (v('c_sys') && v('c_dia')) {
+      y = fieldRow('Blodtrykk', v('c_sys') + '/' + v('c_dia') + ' mmHg', y, refSys(n('c_sys')));
+    }
+    if (v('c_vo2maks')) {
+      const protokollNavn = {'bruce':'Bruce','modbruce':'Mod. Bruce','astrand':'Åstrand'}[v('vo2_protokoll')] || '';
+      const lbl = 'VO₂maks' + (protokollNavn ? ' (' + protokollNavn + ')' : '');
+      y = fieldRow(lbl, v('c_vo2maks') + ' ml/kg/min', y, refVO2(n('c_vo2maks'), v('p_kjonn'), age));
+    }
+    y += 10;
+  }
+
+  // ── STYRKE ──
+  const styrkeFields = [['Benkpress', 's_benkpress'], ['Sittende roing', 's_roing'], ['Lat pulldown', 's_lat'], ['Beinpress', 's_beinpress'], ['Beinekstensjon', 's_beinekst'], ['Beinkurl', 's_beinkurl'], ['Magemaskin', 's_mage']];
+  const hasStyrke = styrkeFields.some(([, id]) => v(id));
+  if (hasStyrke) {
+    y = sectionLabel('STYRKE (EGYM)', y);
+    styrkeFields.forEach(([lbl, id]) => { if (v(id)) y = fieldRow(lbl, v(id) + ' kg', y); });
+    if (v('bio_styrke')) y = fieldRow('BioAge styrke', v('bio_styrke') + ' år', y);
+    y += 10;
+  }
+
+  // ── FLEKSIBILITET ──
+  const fleksFieldsPNG = [['Nakke v/h', 'f_nakke_v', 'f_nakke_h', '°'], ['Hofte v/h', 'f_hofte_v', 'f_hofte_h', '°'], ['Hamstrings v/h', 'f_ham_v', 'f_ham_h', '°'], ['Lateral overkropp v/h', 'f_lat_v', 'f_lat_h', '°'], ['Bryst/skulder', 'f_bryst', null, '°'], ['Squat test', 'f_squat', null, '%']];
+  const hasFleksPNG = fleksFieldsPNG.some(([, id]) => v(id));
+  if (hasFleksPNG) {
+    y = sectionLabel('FLEKSIBILITET (EGYM)', y);
+    fleksFieldsPNG.forEach(([lbl, id1, id2, unit]) => {
+      const a = v(id1), b = id2 ? v(id2) : null;
+      if (a || b) y = fieldRow(lbl, (a || '—') + (b ? ' / ' + b : '') + ' ' + unit, y);
+    });
+    if (v('bio_fleks')) y = fieldRow('BioAge fleksibilitet', v('bio_fleks') + ' år', y);
+    y += 10;
+  }
+
+  // ── GREPSSTYRKE ──
+  const hasGripPNG = ['g_h1', 'g_h2', 'g_h3', 'g_v1', 'g_v2', 'g_v3'].some(id => v(id));
+  if (hasGripPNG) {
+    y = sectionLabel('GREPSSTYRKE', y);
+    if (v('g_best_h')) y = fieldRow('Beste høyre', v('g_best_h') + ' kg', y, refGrip(parseFloat(v('g_best_h')), v('p_kjonn'), age));
+    if (v('g_best_v')) y = fieldRow('Beste venstre', v('g_best_v') + ' kg', y, refGrip(parseFloat(v('g_best_v')), v('p_kjonn'), age));
+    if (v('g_max')) y = fieldRow('Maks grepsstyrke', v('g_max') + ' kg', y, refGrip(parseFloat(v('g_max')), v('p_kjonn'), age));
+    const details = [];
+    if (v('g_h1')) details.push('H1: ' + v('g_h1'));
+    if (v('g_h2')) details.push('H2: ' + v('g_h2'));
+    if (v('g_h3')) details.push('H3: ' + v('g_h3'));
+    if (v('g_v1')) details.push('V1: ' + v('g_v1'));
+    if (v('g_v2')) details.push('V2: ' + v('g_v2'));
+    if (v('g_v3')) details.push('V3: ' + v('g_v3'));
+    if (details.length > 0) {
+      ctx.font = '12px Helvetica, Arial, sans-serif';
+      ctx.fillStyle = COL.grayText;
+      ctx.fillText('Forsøk: ' + details.join(' · ') + ' kg', ML + 6, y);
+      y += 16;
+    }
+    y += 10;
+  }
+
+  // ── KONDISJONSTEST VO2MAKS ──
+  y = sectionLabel('KONDISJONSTEST — VO2MAKS', y);
+  if (bruceVo2 !== null) {
+    ctx.font = 'bold 72px Helvetica, Arial, sans-serif';
+    ctx.fillStyle = COL.sterk;
+    ctx.fillText(String(bruceVo2), ML + 6, y + 28);
+    const vo2w = ctx.measureText(String(bruceVo2)).width;
+    ctx.font = '18px Helvetica, Arial, sans-serif';
+    ctx.fillStyle = COL.grayText;
+    ctx.fillText('ml/kg/min', ML + 6 + vo2w + 10, y + 28);
+
+    // Category badge
+    const cat = bruceCategory;
+    const catColor = cat === 'Svært lav' || cat === 'Lav' ? COL.red : cat === 'Moderat' ? COL.yellow : COL.green;
+    ctx.font = 'bold 16px Helvetica, Arial, sans-serif';
+    const catW = ctx.measureText(cat).width;
+    const catX = PW - MR - catW - 20;
+    ctx.fillStyle = catColor;
+    ctx.beginPath();
+    ctx.roundRect(catX, y + 4, catW + 20, 28, 6);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(cat, catX + 10, y + 23);
+
+    y += 46;
+    y = fieldRow('Protokoll', g('res-protocol') ? g('res-protocol').textContent : '—', y);
+    y = fieldRow(currentMode === 'cycle' ? 'Belastning' : 'Testtid', g('res-time') ? g('res-time').textContent : '—', y);
+    const hfValPNG = g('res-hfmax') ? g('res-hfmax').textContent : '—';
+    if (hfValPNG && hfValPNG !== '—') y = fieldRow('HF', hfValPNG, y);
+    y = fieldRow('ACSM-kategori', bruceCategory, y);
+  } else {
+    y = fieldRow('Status', 'Ikke utført', y);
+  }
+  y += 10;
+
+  // ── EGYM BIOAGE SUMMARY ──
+  const egymBioPNG = g('egym_total_val').textContent;
+  if (egymBioPNG !== '—') {
+    y = sectionLabel('SAMLET HELSESCORE', y);
+    const boxW = (CW - 24) / 3;
+    const boxes = [
+      { label: 'EGYM BioAge', value: egymBioPNG + ' år', color: COL.sterk },
+      { label: 'VO2maks', value: bruceVo2 ? bruceVo2 + ' ml/kg/min' : '—', color: COL.sterk },
+      { label: 'Kronologisk alder', value: age ? age + ' år' : '—', color: COL.grayText },
+    ];
+    boxes.forEach((box, i) => {
+      const bx = ML + i * (boxW + 12);
+      ctx.fillStyle = COL.grayBg;
+      ctx.strokeStyle = COL.grayLine;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(bx, y, boxW, 52, 6);
+      ctx.fill();
+      ctx.stroke();
+      ctx.font = '12px Helvetica, Arial, sans-serif';
+      ctx.fillStyle = COL.grayText;
+      ctx.textAlign = 'center';
+      ctx.fillText(box.label, bx + boxW / 2, y + 18);
+      ctx.font = 'bold 22px Helvetica, Arial, sans-serif';
+      ctx.fillStyle = box.color;
+      ctx.fillText(box.value, bx + boxW / 2, y + 42);
+      ctx.textAlign = 'left';
+    });
+    y += 64;
+
+    if (age) {
+      const diff = parseInt(egymBioPNG) - age;
+      let deltaText, deltaColor;
+      if (diff < 0) { deltaText = Math.abs(diff) + ' år yngre biologisk'; deltaColor = COL.green; }
+      else if (diff > 0) { deltaText = diff + ' år eldre biologisk'; deltaColor = COL.red; }
+      else { deltaText = 'Tilsvarer kronologisk alder'; deltaColor = COL.sterk; }
+      ctx.fillStyle = '#f5f8f0';
+      ctx.beginPath();
+      ctx.roundRect(ML, y, CW, 28, 6);
+      ctx.fill();
+      ctx.font = 'bold 18px Helvetica, Arial, sans-serif';
+      ctx.fillStyle = deltaColor;
+      ctx.textAlign = 'center';
+      ctx.fillText(deltaText, PW / 2, y + 19);
+      ctx.textAlign = 'left';
+      y += 38;
+    }
+  }
+
+  // ── KOMMENTAR ──
+  const kommPNG = v('kommentar');
+  if (kommPNG) {
+    y = sectionLabel('KOMMENTAR', y);
+    ctx.font = '14px Helvetica, Arial, sans-serif';
+    ctx.fillStyle = COL.darkText;
+    // Word wrap
+    const words = kommPNG.split(' ');
+    let line = '';
+    const maxW = CW - 16;
+    words.forEach(word => {
+      const test = line + (line ? ' ' : '') + word;
+      if (ctx.measureText(test).width > maxW && line) {
+        ctx.fillText(line, ML + 6, y);
+        y += 18;
+        line = word;
+      } else {
+        line = test;
+      }
+    });
+    if (line) { ctx.fillText(line, ML + 6, y); y += 18; }
+    y += 6;
+  }
+
+  // ── FOOTER ──
+  const footerY = PH - 40;
+  ctx.strokeStyle = COL.grayLine;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(ML, footerY - 8);
+  ctx.lineTo(ML + CW, footerY - 8);
+  ctx.stroke();
+  ctx.font = '12px Helvetica, Arial, sans-serif';
+  ctx.fillStyle = COL.grayText;
+  ctx.fillText('Registrert via Sterk Helse & Trening — Standard fysisk helseundersøkelse', ML, footerY + 4);
+  ctx.textAlign = 'right';
+  ctx.fillText('Generert: ' + new Date().toLocaleDateString('nb-NO') + ' ' + new Date().toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' }), PW - MR, footerY + 4);
+  ctx.textAlign = 'left';
+  ctx.fillText('Dokument for opplasting i Pasientsky. Ingen data er lagret eksternt.', ML, footerY + 18);
+
+  // ── SAVE AS PNG with STERK metadata ──
+  const filename = 'helseundersokelse_' + (v('p_testdato') || 'sterk') + '.png';
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  canvas.toBlob(function(blob) {
+    if (!blob) { setToast('Kunne ikke generere PNG'); return; }
+
+    // Embed STERK metadata as tEXt chunk in PNG
+    const sterkDataPNG = buildSterkDataObject();
+    const sterkB64PNG = btoa(unescape(encodeURIComponent(JSON.stringify(sterkDataPNG))));
+    const metaValue = 'STERK_EGYM_DATA_V1:' + sterkB64PNG;
+
+    blob.arrayBuffer().then(function(pngBuf) {
+      const pngBytes = new Uint8Array(pngBuf);
+      const finalBlob = insertPngTextChunk(pngBytes, 'Comment', metaValue);
+
+      const url = URL.createObjectURL(finalBlob);
+      if (isIOS) {
+        const w = window.open();
+        if (w) {
+          w.document.write('<html><head><title>Helseskjema</title><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;display:flex;justify-content:center;background:#f0f0f0;"><img src="' + url + '" style="max-width:100%;height:auto;" /></body></html>');
+          w.document.close();
+        } else {
+          window.open(url, '_blank');
+        }
+        setToast('PNG åpnet — hold inne bildet → Lagre til Bilder/Filer');
+      } else {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        setToast('PNG lastet ned — klar for opplasting i Pasientsky');
+      }
+    });
+  }, 'image/png');
+  } catch(err) {
+    console.error('PNG-generering feilet:', err);
+    setToast('Feil ved PNG-generering: ' + err.message);
   }
 }
 
@@ -2789,9 +3257,9 @@ function buildJournalText() {
   lines.push('──────────────────────────────────────────');
   if (bruceVo2 !== null) {
     lines.push('  VO₂maks:             ' + bruceVo2 + ' ml/kg/min');
-    lines.push('  Protokoll:           ' + v('res-protocol'));
-    lines.push('  ' + (currentMode === 'cycle' ? 'Belastning:' : 'Testtid:') + '            ' + v('res-time'));
-    const hfVal = v('res-hfmax');
+    lines.push('  Protokoll:           ' + (g('res-protocol') ? g('res-protocol').textContent : '—'));
+    lines.push('  ' + (currentMode === 'cycle' ? 'Belastning:' : 'Testtid:') + '            ' + (g('res-time') ? g('res-time').textContent : '—'));
+    const hfVal = g('res-hfmax') ? g('res-hfmax').textContent : '—';
     if (hfVal && hfVal !== '—') lines.push('  HF:                  ' + hfVal);
     lines.push('  ACSM-kategori:       ' + bruceCategory);
   } else {
@@ -2864,6 +3332,10 @@ function fallbackCopy(txt) {
     setToast('Hold inne teksten i boksen → Velg alt → Kopier');
   }
   document.body.removeChild(ta);
+}
+
+function exportSterkApp() {
+  setToast('STERK APP-integrasjon er under utvikling — kommer snart.');
 }
 
 function downloadTxt() {
@@ -2961,7 +3433,8 @@ function validateRequired() {
     if (el) el.classList.toggle('invalid', invalid);
     if (invalid) ok = false;
   });
-  g('validate-banner').classList.toggle('show', !ok);
+  const banner = g('validate-banner');
+  if (banner) banner.classList.toggle('show', !ok);
   if (!ok) scrollToSection('pasient');
   return ok;
 }
@@ -2989,6 +3462,114 @@ function loadLastTest() {
   } catch(e) {}
 }
 
+// ─── AUTO-SAVE (localStorage) ────────────────────────
+const DRAFT_KEY = 'sterk_draft';
+const DRAFT_FIELDS = [
+  'p_fodselsdato','p_testdato','p_kjonn','p_journal','p_instruktor',
+  'p_fdag','p_fmnd','p_faar',
+  's_benkpress','s_roing','s_lat','s_beinpress','s_beinekst','s_beinkurl','s_mage',
+  'bio_styrke','bio_fleks','bio_meta',
+  'f_nakke_v','f_nakke_h','f_hofte_v','f_hofte_h','f_ham_v','f_ham_h',
+  'f_lat_v','f_lat_h','f_bryst','f_squat',
+  'm_vekt','m_hoyde','m_bmi','m_fettpct','m_muskel',
+  'c_puls','c_sys','c_dia',
+  'g_h1','g_h2','g_h3','g_v1','g_v2','g_v3','g_best_h','g_best_v','g_max',
+  'b_gender','b_age','vo2_bruce_min','vo2_bruce_sek',
+  'a_gender','a_age','a_watt','a_vekt','a_hr5','a_hr6',
+  'kommentar'
+];
+
+function saveDraft() {
+  try {
+    const data = {};
+    DRAFT_FIELDS.forEach(id => {
+      const el = g(id);
+      if (el) data[id] = el.tagName === 'TEXTAREA' ? el.value : el.value;
+    });
+    data._ts = Date.now();
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+  } catch(e) {}
+}
+
+function restoreDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data || !data._ts) return false;
+
+    // Check if draft is older than 24 hours — skip if so
+    const ageHrs = (Date.now() - data._ts) / 3600000;
+    if (ageHrs > 24) { clearDraft(); return false; }
+
+    let filled = 0;
+    DRAFT_FIELDS.forEach(id => {
+      if (data[id] !== undefined && data[id] !== '') {
+        const el = g(id);
+        if (el) { el.value = data[id]; filled++; }
+      }
+    });
+
+    if (filled > 2) {
+      // Trigger all dependent calculations
+      if (v('p_fodselsdato')) {
+        const d = new Date(v('p_fodselsdato'));
+        if (!isNaN(d)) {
+          setv('p_fdag', String(d.getDate()));
+          setv('p_fmnd', String(d.getMonth()+1).padStart(2,'0'));
+          setv('p_faar', String(d.getFullYear()));
+          const age = calcAge(v('p_fodselsdato'));
+          const display = g('alder-display');
+          if (display) display.textContent = age !== null ? age + ' år' : '';
+        }
+      }
+      updateAllRefs();
+      syncDemographics();
+      if (typeof calcGrip === 'function') try { calcGrip(); } catch(e) {}
+      if (typeof syncBioAge === 'function') try { syncBioAge(); } catch(e) {}
+      updateSummary();
+      setToast('Forrige utkast gjenopprettet — fortsett der du slapp');
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+}
+
+// Debounced auto-save — saves 500ms after last change
+let _saveTimer = null;
+function debouncedSave() {
+  if (_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveDraft, 500);
+}
+
+// Attach auto-save to all form fields
+function initAutoSave() {
+  DRAFT_FIELDS.forEach(id => {
+    const el = g(id);
+    if (!el) return;
+    const evt = (el.tagName === 'SELECT') ? 'change' : 'input';
+    el.addEventListener(evt, debouncedSave);
+  });
+  // Also save on textarea change
+  const komm = g('kommentar');
+  if (komm) komm.addEventListener('input', debouncedSave);
+}
+
+// Warn before closing if form has data
+let _hasExported = false;
+window.addEventListener('beforeunload', function(e) {
+  // Check if any meaningful data has been entered
+  const hasData = ['p_fodselsdato','s_benkpress','m_vekt','c_puls','g_h1'].some(id => v(id));
+  if (hasData && !_hasExported) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
 // ─── INIT ────────────────────────────────────────────
 document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === 'Go') && currentMode === 'treadmill') calculateBruce(); else if ((e.key === 'Enter' || e.key === 'Go') && currentMode === 'cycle') calculateAstrand(); });
 window.addEventListener('scroll', updateSteps, { passive: true });
@@ -2997,14 +3578,14 @@ document.addEventListener('touchmove', function(e) {}, { passive: true });
 g('p_testdato').value = new Date().toISOString().split('T')[0];
 g('p_fodselsdato').addEventListener('change', () => {
   g('req-fodselsdato').classList.remove('invalid');
-  g('validate-banner').classList.remove('show');
+  const vb = g('validate-banner'); if (vb) vb.classList.remove('show');
   updateAllRefs();
   updateSummary();
   syncDemographics();
 });
 g('p_testdato').addEventListener('change', () => {
   g('req-testdato').classList.remove('invalid');
-  g('validate-banner').classList.remove('show');
+  const vb = g('validate-banner'); if (vb) vb.classList.remove('show');
 });
 g('p_kjonn').addEventListener('change', () => { updateAllRefs(); updateSummary(); syncDemographics(); });
 // Auto-fill Åstrand weight when metabolic weight changes
@@ -3019,6 +3600,10 @@ try {
   }
 } catch(e) {}
 updateSteps();
+
+// Restore draft and init auto-save
+restoreDraft();
+initAutoSave();
 
 // ─── PWA SERVICE WORKER ──────────────────────────────
 if ('serviceWorker' in navigator) {
