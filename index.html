@@ -1126,7 +1126,7 @@ function dismissBanner() {
         <div class="form-grid">
           <div class="form-group"><label>Benkpress</label><div class="input-with-unit"><input type="number" id="s_benkpress" min="0" max="300" placeholder="—"><span class="input-unit">kg</span></div></div>
           <div class="form-group"><label>Sittende roing</label><div class="input-with-unit"><input type="number" id="s_roing" min="0" max="300" placeholder="—"><span class="input-unit">kg</span></div></div>
-          <div class="form-group"><label>Skulderpress</label><div class="input-with-unit"><input type="number" id="s_skulder" min="0" max="300" placeholder="—"><span class="input-unit">kg</span></div></div>
+
           <div class="form-group"><label>Lat pulldown</label><div class="input-with-unit"><input type="number" id="s_lat" min="0" max="300" placeholder="—"><span class="input-unit">kg</span></div></div>
           <div class="form-group"><label>Beinpress</label><div class="input-with-unit"><input type="number" id="s_beinpress" min="0" max="500" placeholder="—"><span class="input-unit">kg</span></div></div>
           <div class="form-group"><label>Beinekstensjon</label><div class="input-with-unit"><input type="number" id="s_beinekst" min="0" max="300" placeholder="—"><span class="input-unit">kg</span></div></div>
@@ -1181,12 +1181,8 @@ function dismissBanner() {
           <div class="form-group"><label>Vekt</label><div class="input-with-unit"><input type="number" id="m_vekt" min="30" max="300" step="0.1" placeholder="—" oninput="calcMeta()"><span class="input-unit">kg</span></div></div>
           <div class="form-group"><label>Høyde</label><div class="input-with-unit"><input type="number" id="m_hoyde" min="100" max="230" placeholder="—" oninput="calcMeta()"><span class="input-unit">cm</span></div></div>
           <div class="form-group auto-field"><label>BMI (auto)</label><div class="input-with-badge"><div class="input-with-unit"><input type="number" id="m_bmi" readonly placeholder="—"><span class="input-unit">kg/m²</span></div><span class="badge-slot" id="badge_bmi"></span></div></div>
-          <div class="form-group"><label>Midjemål</label><div class="input-with-unit"><input type="number" id="m_midje" min="40" max="200" placeholder="—" oninput="calcMeta()"><span class="input-unit">cm</span></div></div>
-          <div class="form-group"><label>Hoftemål</label><div class="input-with-unit"><input type="number" id="m_hofte" min="40" max="200" placeholder="—" oninput="calcMeta()"><span class="input-unit">cm</span></div></div>
-          <div class="form-group auto-field"><label>WHR (auto)</label><div class="input-with-badge"><div class="input-with-unit"><input type="number" id="m_whr" readonly placeholder="—"></div><span class="badge-slot" id="badge_whr"></span></div></div>
           <div class="form-group"><label>Fettprosent</label><div class="input-with-badge"><div class="input-with-unit"><input type="number" id="m_fettpct" min="2" max="70" step="0.1" placeholder="—" oninput="calcMeta()"><span class="input-unit">%</span></div><span class="badge-slot" id="badge_fettpct"></span></div></div>
           <div class="form-group"><label>Muskelmasse</label><div class="input-with-unit"><input type="number" id="m_muskel" min="10" max="100" step="0.1" placeholder="—" oninput="calcMeta()"><span class="input-unit">kg</span></div></div>
-          <div class="form-group auto-field"><label>FFMI (auto)</label><div class="input-with-badge"><div class="input-with-unit"><input type="number" id="m_ffmi" readonly placeholder="—"><span class="input-unit">kg/m²</span></div><span class="badge-slot" id="badge_ffmi"></span></div></div>
         </div>
         <div class="bioage-row">
           <span class="bioage-label">Metabolsk BioAge</span>
@@ -1208,11 +1204,53 @@ function dismissBanner() {
           <div class="form-group"><label>Hvilepuls</label><div class="input-with-badge"><div class="input-with-unit"><input type="number" id="c_puls" min="30" max="150" placeholder="—" oninput="updateCardioRefs()"><span class="input-unit">bpm</span></div><span class="badge-slot" id="badge_puls"></span></div></div>
           <div class="form-group"><label>Systolisk BT</label><div class="input-with-badge"><div class="input-with-unit"><input type="number" id="c_sys" min="60" max="250" placeholder="—" oninput="updateCardioRefs()"><span class="input-unit">mmHg</span></div><span class="badge-slot" id="badge_sys"></span></div></div>
           <div class="form-group"><label>Diastolisk BT</label><div class="input-with-badge"><div class="input-with-unit"><input type="number" id="c_dia" min="40" max="180" placeholder="—" oninput="updateCardioRefs()"><span class="input-unit">mmHg</span></div><span class="badge-slot" id="badge_dia"></span></div></div>
-          <div class="form-group"><label>VO₂maks (EGYM)</label><div class="input-with-unit"><input type="number" id="c_vo2egym" min="10" max="90" step="0.1" placeholder="—"><span class="input-unit">ml/kg/min</span></div></div>
         </div>
-        <div class="bioage-row">
-          <span class="bioage-label">Kondisjon BioAge</span>
-          <div class="bioage-input"><input type="number" id="bio_cardio" min="10" max="100" placeholder="—" oninput="syncBioAge()"><span class="bioage-unit">år</span></div>
+
+        <!-- VO2maks -->
+        <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+          <div style="font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;">VO₂maks — kondisjontest</div>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Protokoll</label>
+              <select id="vo2_protokoll" onchange="calcVO2()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:14px;width:100%;">
+                <option value="">— Velg protokoll —</option>
+                <option value="bruce">Bruce (tredemølle)</option>
+                <option value="modbruce">Modifisert Bruce (tredemølle)</option>
+                <option value="astrand">Åstrand (sykkel)</option>
+              </select>
+            </div>
+
+            <!-- Bruce inputs -->
+            <div class="form-group" id="vo2_bruce_tid_wrap" style="display:none;">
+              <label>Tid på tredemølle</label>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <input type="number" id="vo2_bruce_min" min="0" max="30" placeholder="min" oninput="calcVO2()" style="width:70px;text-align:center;">
+                <span style="color:var(--muted);font-size:12px;">min</span>
+                <input type="number" id="vo2_bruce_sek" min="0" max="59" placeholder="sek" oninput="calcVO2()" style="width:70px;text-align:center;">
+                <span style="color:var(--muted);font-size:12px;">sek</span>
+              </div>
+            </div>
+
+            <!-- Åstrand inputs -->
+            <div class="form-group" id="vo2_astrand_puls_wrap" style="display:none;">
+              <label>Steadystate-puls</label>
+              <div class="input-with-unit"><input type="number" id="vo2_astrand_puls" min="100" max="200" placeholder="—" oninput="calcVO2()"><span class="input-unit">bpm</span></div>
+            </div>
+            <div class="form-group" id="vo2_astrand_watt_wrap" style="display:none;">
+              <label>Belastning</label>
+              <div class="input-with-unit"><input type="number" id="vo2_astrand_watt" min="50" max="400" step="25" placeholder="—" oninput="calcVO2()"><span class="input-unit">W</span></div>
+            </div>
+
+            <!-- Result -->
+            <div class="form-group auto-field" id="vo2_result_wrap" style="display:none;">
+              <label>VO₂maks (beregnet)</label>
+              <div class="input-with-badge">
+                <div class="input-with-unit"><input type="number" id="c_vo2maks" readonly placeholder="—"><span class="input-unit">ml/kg/min</span></div>
+                <span class="badge-slot" id="badge_vo2"></span>
+              </div>
+            </div>
+          </div>
+          <div id="vo2_hint" style="font-size:11px;color:var(--muted);margin-top:6px;display:none;"></div>
         </div>
       </div>
     </div>
@@ -1667,6 +1705,105 @@ function refDia(dia) {
   if (dia < 90)  return ['ref-yellow','Høy-normal'];
   if (dia < 100) return ['ref-yellow','Grad 1'];
   return ['ref-red','Grad 2+'];
+}
+
+// VO2maks reference values (ACSM normative data by age and gender)
+function refVO2(vo2, gender, age) {
+  if (!vo2 || isNaN(vo2) || !age) return null;
+  const isMale = gender === 'male';
+  // [poor, fair, good, excellent] cutoffs — above excellent = outstanding
+  let poor, fair, good, excellent;
+  if (isMale) {
+    if      (age < 30) { poor=31; fair=37; good=44; excellent=51; }
+    else if (age < 40) { poor=29; fair=35; good=42; excellent=49; }
+    else if (age < 50) { poor=26; fair=31; good=38; excellent=45; }
+    else if (age < 60) { poor=23; fair=28; good=34; excellent=41; }
+    else if (age < 70) { poor=20; fair=24; good=30; excellent=37; }
+    else               { poor=18; fair=22; good=27; excellent=33; }
+  } else {
+    if      (age < 30) { poor=24; fair=29; good=35; excellent=41; }
+    else if (age < 40) { poor=22; fair=27; good=33; excellent=39; }
+    else if (age < 50) { poor=19; fair=23; good=29; excellent=35; }
+    else if (age < 60) { poor=17; fair=21; good=26; excellent=31; }
+    else if (age < 70) { poor=15; fair=18; good=23; excellent=28; }
+    else               { poor=13; fair=16; good=20; excellent=25; }
+  }
+  if (vo2 < poor)      return ['ref-red',    'Svak'];
+  if (vo2 < fair)      return ['ref-red',    'Under norm'];
+  if (vo2 < good)      return ['ref-yellow', 'Moderat'];
+  if (vo2 < excellent) return ['ref-green',  'God'];
+  return ['ref-green', 'Utmerket'];
+}
+
+function calcVO2() {
+  const protokoll = v('vo2_protokoll');
+  const gender = v('p_kjonn') || 'male';
+  const age = calcAge(v('p_fodselsdato'));
+  const vekt = parseFloat(v('m_vekt'));
+
+  // Show/hide input fields
+  g('vo2_bruce_tid_wrap').style.display  = (protokoll === 'bruce' || protokoll === 'modbruce') ? '' : 'none';
+  g('vo2_astrand_puls_wrap').style.display = protokoll === 'astrand' ? '' : 'none';
+  g('vo2_astrand_watt_wrap').style.display = protokoll === 'astrand' ? '' : 'none';
+
+  let vo2 = null;
+  let hint = '';
+
+  if (protokoll === 'bruce' || protokoll === 'modbruce') {
+    const min = parseFloat(document.getElementById('vo2_bruce_min').value) || 0;
+    const sek = parseFloat(document.getElementById('vo2_bruce_sek').value) || 0;
+    const T = min + sek / 60;
+    if (T > 0) {
+      if (protokoll === 'bruce') {
+        // Pollock 1982 — treadmill time in minutes
+        if (gender === 'male')
+          vo2 = 14.76 - 1.379*T + 0.451*T*T - 0.012*T*T*T;
+        else
+          vo2 = 4.38*T - 3.9;
+        hint = 'Bruce: Pollock 1982 (menn) / Foster 1984 (kvinner). Uten håndrekkverk.';
+      } else {
+        // Modified Bruce — starts at stage 0 (1.7 mph, 0%)
+        if (gender === 'male')
+          vo2 = 2.282*T + 8.545;
+        else
+          vo2 = 2.282*T + 5.0;
+        hint = 'Modifisert Bruce: starter ved 2,7 km/t, 0 % stigning. For eldre/dekondisjonerte.';
+      }
+    }
+  } else if (protokoll === 'astrand') {
+    const puls = parseFloat(document.getElementById('vo2_astrand_puls').value);
+    const watt = parseFloat(document.getElementById('vo2_astrand_watt').value);
+    if (puls && watt && vekt) {
+      // Åstrand-Ryhming nomogram approximation: VO2 (L/min) = (watt * 12) / (puls - 50) * 0.1
+      // Using standard formula: VO2L = (watt + 300) / (puls - 50) * 0.054 (simplified Åstrand)
+      const vo2L = (watt * 0.163 + 0.053) / ((puls - 0.387 * puls + 0.387 * 72) / 72);
+      // Simpler validated: VO2 mL/kg/min
+      // Åstrand 1954: VO2max (L/min) ≈ (watt × 12) / HR_steady
+      const vo2Lmin = (watt * 12) / puls;
+      vo2 = (vo2Lmin * 1000) / vekt;
+      hint = 'Åstrand-Ryhming (1954). Krever steadystate-puls (siste 2 min av 6 min test ved jevn belastning).';
+    } else if (puls && watt && !vekt) {
+      hint = 'Fyll inn vekt under Metabolsk for å beregne VO₂maks (ml/kg/min).';
+    }
+  }
+
+  if (vo2 && vo2 > 0) {
+    vo2 = Math.round(vo2 * 10) / 10;
+    setv('c_vo2maks', vo2);
+    const ref = refVO2(vo2, gender, age);
+    setBadge('badge_vo2', ref ? ref[0] : null, ref ? ref[1] : '');
+    g('vo2_result_wrap').style.display = '';
+  } else {
+    setv('c_vo2maks', '');
+    setBadge('badge_vo2', null, '');
+    g('vo2_result_wrap').style.display = protokoll ? '' : 'none';
+  }
+
+  const hintEl = g('vo2_hint');
+  if (hint) { hintEl.textContent = hint; hintEl.style.display = ''; }
+  else hintEl.style.display = 'none';
+
+  updateSummary();
 }
 
 // Grip strength reference values based on age and gender (Roberts 2011, Bohannon 2019)
@@ -2265,37 +2402,36 @@ function generatePDF() {
   y += 4;
 
   // ── METABOLSK ──
-  const hasMeta = ['m_vekt', 'm_hoyde', 'm_bmi', 'm_midje', 'm_hofte', 'm_whr', 'm_fettpct', 'm_muskel', 'm_ffmi'].some(id => v(id));
+  const hasMeta = ['m_vekt', 'm_hoyde', 'm_bmi', 'm_fettpct', 'm_muskel'].some(id => v(id));
   if (hasMeta) {
     y = sectionLabel('METABOLSK HELSE', y);
     if (v('m_vekt')) y = fieldRow('Vekt', v('m_vekt') + ' kg', y);
     if (v('m_hoyde')) y = fieldRow('Høyde', v('m_hoyde') + ' cm', y);
     if (v('m_bmi')) y = fieldRow('BMI', v('m_bmi') + ' kg/m²', y, refBMI(n('m_bmi')));
-    if (v('m_midje')) y = fieldRow('Midjemål', v('m_midje') + ' cm', y);
-    if (v('m_hofte')) y = fieldRow('Hoftemål', v('m_hofte') + ' cm', y);
-    if (v('m_whr')) y = fieldRow('Midje-hofte-ratio', v('m_whr'), y, refWHR(n('m_whr'), v('p_kjonn')));
     if (v('m_fettpct')) y = fieldRow('Fettprosent', v('m_fettpct') + ' %', y, refFett(n('m_fettpct'), v('p_kjonn'), age));
     if (v('m_muskel')) y = fieldRow('Muskelmasse', v('m_muskel') + ' kg', y);
-    if (v('m_ffmi')) y = fieldRow('FFMI', v('m_ffmi') + ' kg/m²', y, refFFMI(n('m_ffmi'), v('p_kjonn')));
     if (v('bio_meta')) y = fieldRow('BioAge metabolsk', v('bio_meta') + ' år', y);
     y += 4;
   }
 
   // ── KONDISJON / HJERTE-KAR ──
-  const hasCardio = ['c_puls', 'c_sys', 'c_dia', 'c_vo2egym'].some(id => v(id));
+  const hasCardio = ['c_puls', 'c_sys', 'c_dia', 'c_vo2maks'].some(id => v(id));
   if (hasCardio) {
     y = sectionLabel('KONDISJON / HJERTE-KAR', y);
     if (v('c_puls')) y = fieldRow('Hvilepuls', v('c_puls') + ' bpm', y, refPuls(n('c_puls')));
     if (v('c_sys') && v('c_dia')) {
       y = fieldRow('Blodtrykk', v('c_sys') + '/' + v('c_dia') + ' mmHg', y, refSys(n('c_sys')));
     }
-    if (v('c_vo2egym')) y = fieldRow('VO2maks (EGYM)', v('c_vo2egym') + ' ml/kg/min', y);
-    if (v('bio_cardio')) y = fieldRow('BioAge kondisjon', v('bio_cardio') + ' år', y);
+    if (v('c_vo2maks')) {
+      const protokollNavn = {'bruce':'Bruce','modbruce':'Mod. Bruce','astrand':'Åstrand'}[v('vo2_protokoll')] || '';
+      const lbl = 'VO₂maks' + (protokollNavn ? ' (' + protokollNavn + ')' : '');
+      y = fieldRow(lbl, v('c_vo2maks') + ' ml/kg/min', y, refVO2(n('c_vo2maks'), v('p_kjonn'), age));
+    }
     y += 4;
   }
 
   // ── STYRKE ──
-  const styrkeFields = [['Benkpress', 's_benkpress'], ['Sittende roing', 's_roing'], ['Skulderpress', 's_skulder'], ['Lat pulldown', 's_lat'], ['Beinpress', 's_beinpress'], ['Beinekstensjon', 's_beinekst'], ['Beinkurl', 's_beinkurl'], ['Magemaskin', 's_mage']];
+  const styrkeFields = [['Benkpress', 's_benkpress'], ['Sittende roing', 's_roing'], ['Lat pulldown', 's_lat'], ['Beinpress', 's_beinpress'], ['Beinekstensjon', 's_beinekst'], ['Beinkurl', 's_beinkurl'], ['Magemaskin', 's_mage']];
   const hasStyrke = styrkeFields.some(([, id]) => v(id));
   if (hasStyrke) {
     y = sectionLabel('STYRKE (EGYM)', y);
@@ -2454,8 +2590,14 @@ function generatePDF() {
 
   // ── SAVE ──
   const filename = 'helseundersokelse_' + (v('p_testdato') || 'sterk') + '.pdf';
-  doc.save(filename);
-  setToast('PDF generert og lastet ned — klar for opplasting i Pasientsky');
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isIOS) {
+    doc.output('dataurlnewwindow');
+    setToast('PDF åpnet i ny fane — trykk Del → Lagre til Filer for å laste ned');
+  } else {
+    doc.save(filename);
+    setToast('PDF generert og lastet ned — klar for opplasting i Pasientsky');
+  }
 }
 
 // ─── HISTORY (localStorage) ──────────────────────────
@@ -2575,7 +2717,7 @@ function buildJournalText() {
   lines.push('  DEL 1 — EGYM');
   lines.push('──────────────────────────────────────────');
 
-  const styrke = [['Benkpress','s_benkpress'],['Sittende roing','s_roing'],['Skulderpress','s_skulder'],['Lat pulldown','s_lat'],['Beinpress','s_beinpress'],['Beinekstensjon','s_beinekst'],['Beinkurl','s_beinkurl'],['Magemaskin','s_mage']];
+  const styrke = [['Benkpress','s_benkpress'],['Sittende roing','s_roing'],['Lat pulldown','s_lat'],['Beinpress','s_beinpress'],['Beinekstensjon','s_beinekst'],['Beinkurl','s_beinkurl'],['Magemaskin','s_mage']];
   const hasSt = styrke.some(([,id]) => v(id));
   if (hasSt || v('bio_styrke')) {
     lines.push('STYRKE:');
@@ -2596,29 +2738,28 @@ function buildJournalText() {
     lines.push('');
   }
 
-  const hasMeta = ['m_vekt','m_hoyde','m_bmi','m_midje','m_hofte','m_whr','m_fettpct','m_muskel','m_ffmi'].some(id => v(id));
+  const hasMeta = ['m_vekt','m_hoyde','m_bmi','m_fettpct','m_muskel'].some(id => v(id));
   if (hasMeta || v('bio_meta')) {
     lines.push('METABOLSK:');
     if (v('m_vekt')) lines.push('  Vekt:                ' + v('m_vekt') + ' kg');
     if (v('m_hoyde')) lines.push('  Høyde:               ' + v('m_hoyde') + ' cm');
     if (v('m_bmi')) lines.push('  BMI:                 ' + v('m_bmi') + ' kg/m²' + (refBMI(n('m_bmi')) ? '  [' + refBMI(n('m_bmi'))[1] + ']' : ''));
-    if (v('m_midje')) lines.push('  Midjemål:            ' + v('m_midje') + ' cm');
-    if (v('m_hofte')) lines.push('  Hoftemål:            ' + v('m_hofte') + ' cm');
-    if (v('m_whr')) lines.push('  Midje-hofte-ratio:   ' + v('m_whr') + (refWHR(n('m_whr'), v('p_kjonn')) ? '  [' + refWHR(n('m_whr'), v('p_kjonn'))[1] + ']' : ''));
     if (v('m_fettpct')) lines.push('  Fettprosent:         ' + v('m_fettpct') + ' %' + (refFett(n('m_fettpct'), v('p_kjonn'), calcAge(v('p_fodselsdato'))) ? '  [' + refFett(n('m_fettpct'), v('p_kjonn'), calcAge(v('p_fodselsdato')))[1] + ']' : ''));
     if (v('m_muskel')) lines.push('  Muskelmasse:         ' + v('m_muskel') + ' kg');
-    if (v('m_ffmi')) lines.push('  FFMI:                ' + v('m_ffmi') + ' kg/m²');
     if (v('bio_meta')) lines.push('  BioAge metabolsk:    ' + v('bio_meta') + ' år');
     lines.push('');
   }
 
-  const hasCardio = ['c_puls','c_sys','c_dia','c_vo2egym'].some(id => v(id));
-  if (hasCardio || v('bio_cardio')) {
+  const hasCardio = ['c_puls','c_sys','c_dia','c_vo2maks'].some(id => v(id));
+  if (hasCardio) {
     lines.push('KONDISJON / HJERTE-KAR:');
     if (v('c_puls')) lines.push('  Hvilepuls:           ' + v('c_puls') + ' bpm' + (refPuls(n('c_puls')) ? '  [' + refPuls(n('c_puls'))[1] + ']' : ''));
     if (v('c_sys') && v('c_dia')) lines.push('  Blodtrykk:           ' + v('c_sys') + '/' + v('c_dia') + ' mmHg' + (refSys(n('c_sys')) ? '  [Sys: ' + refSys(n('c_sys'))[1] + ']' : ''));
-    if (v('c_vo2egym')) lines.push('  VO₂maks (EGYM):      ' + v('c_vo2egym') + ' ml/kg/min');
-    if (v('bio_cardio')) lines.push('  BioAge kondisjon:    ' + v('bio_cardio') + ' år');
+    if (v('c_vo2maks')) {
+      const pNavn = {'bruce':'Bruce','modbruce':'Mod. Bruce','astrand':'Åstrand'}[v('vo2_protokoll')] || '';
+      const vo2ref = refVO2(n('c_vo2maks'), v('p_kjonn'), calcAge(v('p_fodselsdato')));
+      lines.push('  VO₂maks' + (pNavn ? ' (' + pNavn + ')' : '') + ':' + ' '.repeat(pNavn ? 3 : 10) + v('c_vo2maks') + ' ml/kg/min' + (vo2ref ? '  [' + vo2ref[1] + ']' : ''));
+    }
     lines.push('');
   }
 
@@ -2728,10 +2869,16 @@ function fallbackCopy(txt) {
 function downloadTxt() {
   const txt = g('export-content').textContent || buildJournalText();
   const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'helseundersokelse_' + (v('p_testdato') || 'sterk') + '.txt';
-  a.click();
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isIOS) {
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  } else {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'helseundersokelse_' + (v('p_testdato') || 'sterk') + '.txt';
+    a.click();
+  }
 }
 
 function openEmailModal() {
